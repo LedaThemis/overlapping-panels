@@ -24,6 +24,7 @@ interface BottomNavigation {
 	height: number,
 	showIf?: ShowIf,
 	component: React.ReactNode,
+	withSafeArea: boolean
 }
 
 interface Props {
@@ -69,11 +70,15 @@ export const OverlappingPanels = ({ width, height, docked, leftPanel, children, 
 	
 			const lWidth = leftPanel?.width  || 0;
 			const rWidth = rightPanel?.width || 0;
-			const hidden = bottomNav!.height + 'px';
+			const hidden = bottomNav!.withSafeArea ? `calc(${bottomNav!.height}px + var(--safe-area-inset-bottom))` : `${bottomNav!.height}px`; 
 	
 			if (el.scrollLeft < lWidth) {
 				if (showIf & ShowIf.Left) {
-					bEl.style.top = (el.scrollLeft / lWidth * bottomNav!.height) + 'px';
+					const baseTopValue = (el.scrollLeft / lWidth * bottomNav!.height) + 'px';
+					const withSafeAreaTopValue = `calc(${el.scrollLeft / lWidth} * calc(${bottomNav!.height}px + var(--safe-area-inset-bottom)))`
+					
+					bEl.style.top = bottomNav!.withSafeArea ? withSafeAreaTopValue : baseTopValue;
+
 					return;
 				} else if (bEl.style.top === hidden) {
 					return;
